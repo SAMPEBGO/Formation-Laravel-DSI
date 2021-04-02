@@ -10,15 +10,20 @@ use Illuminate\Http\Request;
 use PhpParser\Node\Expr\New_;
 use App\Exports\ProduitsExport;
 use Illuminate\Console\Command;
+use App\Mail\NouveauProduitAjouter;
+use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Requests\ProduitFormRequest;
-
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\NouveauProduitNotification;
+use Illuminate\Support\Facades\Auth;
 
 class MainController extends Controller
 {
     //
     public function afficheAccueil()
     {
+        // dd(Auth::user()->role->role);
         return view('pages.front-office.welcome',
         [
             'nom' => 'Service en ligne',
@@ -113,7 +118,7 @@ class MainController extends Controller
             "description"=> "Nous venons de changer la désignation"
 
         ]);
-        dd($ProduitModifie);
+        // dd($ProduitModifie);
    
 
     }
@@ -167,18 +172,29 @@ class MainController extends Controller
     public function ajouterProduit()
     {
 
-        return view("pages.front-office.ajouter-produit");
+        $produit = new Produit;
+        return view("pages.front-office.ajouter-produit", ["produit"=>$produit]);
     }
 
     
 
     public function enregistrerProduit(ProduitFormRequest $request)
     {
+        // dd($request);
 
         // return view("pages.front-office.ajouter-produit");
-        // dd($request);
-        // dd($request->all());
+        //  dd($request->file("image")->getClientOriginalName());
+        $imageName = "default-image.png";
+        if($request->file("image"))
+        {
+            $imageName = time()."_".$request->file("image")->getClientOriginalName();
+            //dd("$imageName");
 
+             $request->file("image")->storeAs("public/produits-images", $imageName);
+
+
+        }
+        
         // $request->validate([
         //     "designation" => "required|min:5|max:255",
         //     "prix" => "required|numeric:2,5",
@@ -197,9 +213,26 @@ class MainController extends Controller
             'description' =>$request->description,
             'pays_source' =>$request->pays_source,
             'like' => $request->like,
-            'poids' => $request->poids
+            'poids' => $request->poids,
+            'image' => $imageName
         ]);
-        return view("pages.front-office.ajouter-produit");
+
+        // $user = User::first();
+        // Mail::to($user)->send(new NouveauProduitAjouter($produit));
+
+        // $users = User::all();
+
+        // $user = User::first();
+        // $produit = Produit::first();
+        // $user->notify(new NouveauProduitNotification($produit));
+
+        // Notification::send($users, new NouveauProduitNotification($produit));
+
+        // return view("pages.front-office.ajouter-produit");
+
+        // $produit = new Produit;
+        // return view("pages.front-office.ajouter-produit", ["produit"=>$produit]);
+        return redirect()->route('produits.liste')->with('statut','Enregistrement du produit effectué avec succès!');
     }
 
 //fonction pour modifier un produit
@@ -207,7 +240,7 @@ class MainController extends Controller
 public function editProduit(Produit $produit)
 {       
 
-    dd($produit);
+    // dd($produit);
         // $produit = Produit::find($id);
         // dd($produit);
         return view("pages.front-office.edit-produit", [
@@ -221,13 +254,18 @@ public function editProduit(Produit $produit)
 //fonction pour updater un produit
 public function updateProduit(ProduitFormRequest $request,  $id)
 {
-        $produit = Produit::where("id", $id)->update([
+    $imageName = time()."_".$request->file("image")->getClientOriginalName();
+    //dd("$imageName");
+
+    $request->file("image")->storeAs("public/produits-images", $imageName);    
+    $produit = Produit::where("id", $id)->update([
             "designation" => $request->designation,
             "prix" => $request->prix,
             "description" => $request->description,
             "like" => $request->like,
             "pays_source" => $request->pays_source,
-            "poids" => $request->poids
+            "poids" => $request->poids,
+            "image" => $imageName
 
         ]);
         

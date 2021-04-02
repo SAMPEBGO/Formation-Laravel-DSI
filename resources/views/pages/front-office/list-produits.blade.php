@@ -6,19 +6,23 @@
             <h3>Liste des Produits</h3>
             <div class="row">
             <div class="d-flex">
-                <a href='{{route('produit.ajout')}}'  class="text-success"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:25px">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                    Ajouter
-                  
-                </a>
+                @if (Auth::user()!=null && Auth::user()->isAdmin())
+                    
+               
+                    <a href='{{route('produit.ajout')}}'  class="text-success"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:25px">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                        Ajouter
+                    
+                    </a>
 
-                <a href='{{route('export')}}'  class="text-info ml-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:25px">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.172a1 1 0 00.707-.293l2.414-2.414a1 1 0 01.707-.293H20" />
-                      </svg>
-                      Exporter
-                </a>
+                    <a href='{{route('export')}}'  class="text-info ml-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:25px">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.172a1 1 0 00.707-.293l2.414-2.414a1 1 0 01.707-.293H20" />
+                        </svg>
+                        Exporter
+                    </a>
+                 @endif
             </div>
 
             </div>
@@ -41,6 +45,7 @@
                                 <td>Désignation</td>
                                 <td>Prix</td>
                                 <td>Pays Source</td>
+                                <td>Image</td>
                             </tr>
                             
                         </tr>
@@ -49,8 +54,10 @@
                         @foreach ($lesproduits as $produit)
                             <tr>
                                 <td>{{$produit->designation}}</td>
-                                <td>{{$produit->prix}} XOF</td>
+                                <td>{{ bf_currency($produit->prix) }}</td> 
+                                {{-- <td>{{ $produit->prix }} XOF</td> --}}
                                 <td>{{$produit->pays_source}}</td>
+                                <td><img class="" src="{{ asset('storage/produits-images/'.$produit->image) }}" width ="40px" height="40px" alt=""></td>
                                 <td class="d-flex">
                                     
                                     {{-- <a href='{{route('delete',$produit->id)}}'  class="text-danger mr-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:25px" >
@@ -119,7 +126,6 @@
                     <tbody>
                         @foreach ($lescommandes as $commande)
                             <tr>
-                                <td>{{$commande->produit->designation}}</td>
                                 <td>{{$commande->produit->prix}} XOF</td>
                                 <td>{{$commande->produit->pays_source}}</td>
                                 <td>
